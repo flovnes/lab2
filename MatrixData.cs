@@ -1,73 +1,86 @@
-﻿using System.Runtime.CompilerServices;
-
-class Matrix {
-    private double[,] matrix;
-    public Matrix(double[,] arr) {
-        matrix = new double[arr.GetLength(0),arr.GetLength(1)];
-        for (int i = 0; i < arr.GetLength(0); i++) {
-            for (int j = 0; j < arr.GetLength(1); j++) {
-                matrix[i,j] = arr[i,j];
-            }
-        }
-    }
+﻿public partial class Matrix {
+    private double[,] data;
+    public Matrix(double[,] arr) => data = (double[,]) arr.Clone();
     public Matrix(double[][] arr) {
+        if (arr == null || arr.Length == 0 || arr[0] == null)
+            throw new ArgumentException("Invalid input array");
+
         for (int i = 0; i < arr.Length; i++) {
             if (arr[i].Length != arr[0].Length)
                 throw new ArgumentException("non-rectangular jagged array");
         }
 
-        matrix = new double[arr.Length, arr[0].Length];
-        for (int i = 0; i < arr.Length; i++) {
-            for (int j = 0; j < arr[0].Length; j++) {
-                matrix[i,j] = arr[i][j];
-            }
-        }
+        int rows = arr.Length;
+        int cols = arr[0].Length;
+
+        data = new double[rows, cols];
+        for (int i = 0; i < rows; i++)
+            Array.Copy(arr[i], 0, data, i * cols, cols);
     }
     public Matrix(string[] arr) {
         for (int i = 0; i < arr.Length; i++) {
             if (arr[i].Length != arr[0].Length)
                 throw new ArgumentException("non-rectangular matrix");
-            string[] values = arr[i].Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+
+            int rows = arr.Length;
+            int cols = arr[0].Length;   
+
+            data = new double[rows, cols];
+            string[] values = arr[i].Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries);
+            
             for (int j = 0; j < values.Length; j++) {
-                if (!double.TryParse(values[j], out matrix[i,j])) {
+                if (!double.TryParse(values[j], out data[i, j])) {
                     throw new ArgumentException("non-numeric value");
                 }
             }
         }
-        
-        matrix = new double[arr.Length, arr[0].Length];
-        for (int i = 0; i < arr.Length; i++) {
-            for (int j = 0; j < arr[0].Length; j++) {
-                matrix[i,j] = arr[i][j];
-            }
-        }
     }
-    public Matrix(string str) {}
-    public Matrix(Matrix m) {
+    public Matrix(string str) {
+        string[] strs = str.Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
+        this.data = new Matrix(strs).data;
     }
+    
+    public Matrix(Matrix m) : this(m.data) {}
     public int Height {
-        get {return matrix.GetLength(1);}
+        get {return data.GetLength(1);}
     }
     public int Width {
-        get {return matrix.GetLength(0);}
+        get {return data.GetLength(0);}
     }
-    public int getHeight() {
-        return Height;
-    }
-    public int getWidth() {
-        return Width;
-    }
+    public int getHeight() => Height;
+    public int getWidth() => Width;
+
     public double this[int i, int j] {
         get {
             if (i >= 0 && i < Height)
             if (j >= 0 && j < Width)
-                return matrix[i,j];
+                return data[i,j];
             return 0;
         }
         set {
             if ( i >= 0 && i < Height
             && j >= 0 && j < Width )
-                matrix[i,j] = value;
+                data[i,j] = value;
         }
+    }
+    public double getElement(int i, int j) {
+        if (i >= 0 && i < Height)
+        if (j >= 0 && j < Width)
+            return this[i,j];
+        return 0;
+    }
+    public void setElement(int i, int j, double value) {
+        if (i >= 0 && i < Height)
+        if (j >= 0 && j < Width)
+            this[i,j] = value;
+    }
+    public override string ToString() {
+        string result = "";
+        for (int i = 0; i < Height; i++) {
+            for (var j = 0; j < Width; j++)
+                result += $"{this[i, j]}:F3";
+            result += "\n";
+        }
+        return result;
     }
 }
