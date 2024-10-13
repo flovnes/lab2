@@ -1,88 +1,82 @@
-public struct FracStruct {
-    public long nominator, denominator;
-
-    public FracStruct(long nom, long denom) {
-        long g = FracStruct.gcd(nom, denom);
-
-        nominator = nom / g;
-        denominator = denom / g;
-        
-        if (denominator < 0) {
-            nominator = -nominator;
-            denominator = -denominator;
+﻿public class MyFrac {
+    private long nominator_, denominator_;
+    public long Nominator {
+        get => nominator_;
+        private set => nominator_ = value;
+    }
+    public long Denominator {
+        get => denominator_;
+        private set {
+            if (value == 0)
+                throw new ArgumentException("denominator cannot be zero");
+            denominator_ = value;
         }
     }
 
-    private static long gcd(long nom, long denom) {
+    public MyFrac(long numerator, long denominator) {
+        long g = Gcd(numerator, denominator);
+
+        Nominator = numerator / g;
+        Denominator = denominator / g;
+        
+        if (Denominator < 0) {
+            Nominator = -Nominator;
+            Denominator = -Denominator;
+        }
+    }
+
+    private static long Gcd(long nom, long denom) {
         long gcd = 0;
         long a = Math.Abs(nom);
         long b = Math.Abs(denom);
 
         while (b != 0) {
             gcd = b;
-            b = a % b;  
+            b = a % b;
             a = gcd;
         }
 
         return gcd;
     }
 
-    public override readonly string ToString() {
-        return $"{nominator}/{denominator}";
-    }
-    
-    public static string ToStringWithIntPart(FracStruct f) {
-        string sign = (f.nominator * f.denominator < 0) ? "-" : "";
-        long before_p = f.nominator / f.denominator;
-        long after_p = f.nominator % f.denominator;
+    public override string ToString() => $"{Nominator}/{Denominator}";
 
-        if (before_p == 0)
-            return $"{sign}{after_p}/{f.denominator}";
-        else if (after_p == 0)
-            return $"{sign}{before_p}";
+    public string ToStringWithIntPart() {
+        string sign = (Nominator * Denominator < 0) ? "-" : "";
+        long integerPart = Math.Abs(Nominator) / Denominator;
+        long fractionalPart = Math.Abs(Nominator) % Denominator;
+
+        if (integerPart == 0)
+            return $"{sign}{fractionalPart}/{Denominator}";
+        else if (fractionalPart == 0)
+            return $"{sign}{integerPart}";
         else
-            return $"{sign}{before_p} + {Math.Abs(after_p)}/{f.denominator}";
+            return $"{sign}{integerPart} + {fractionalPart}/{Denominator}";
     }
 
-    public static double DoubleValue(FracStruct f) {
-        return (double)f.nominator / f.denominator;
+    public double ToDouble() => (double)Nominator / Denominator;
+
+    public static MyFrac operator +(MyFrac f1, MyFrac f2) {
+        long nom = f1.Nominator * f2.Denominator + f2.Nominator * f1.Denominator;
+        long denom = f1.Denominator * f2.Denominator;
+        return new MyFrac(nom, denom);
     }
 
-    public static FracStruct Plus(FracStruct f1, FracStruct f2) {
-        long nom = f1.nominator * f2.denominator + f2.nominator * f1.denominator;
-        long denom = f1.denominator * f2.denominator;
-        return new FracStruct(nom, denom);
+    public static MyFrac operator -(MyFrac f1, MyFrac f2) {
+        long nom = f1.Nominator * f2.Denominator - f2.Nominator * f1.Denominator;
+        long denom = f1.Denominator * f2.Denominator;
+        return new MyFrac(nom, denom);
     }
 
-    public static FracStruct Minus(FracStruct f1, FracStruct f2) {
-        long nom = f1.nominator * f2.denominator - f2.nominator * f1.denominator;
-        long denom = f1.denominator * f2.denominator;
-        return new FracStruct(nom, denom);
+    public static MyFrac operator *(MyFrac f1, MyFrac f2) {
+        long nom = f1.Nominator * f2.Nominator;
+        long denom = f1.Denominator * f2.Denominator;
+        return new MyFrac(nom, denom);
     }
 
-    public static FracStruct Multiply(FracStruct f1, FracStruct f2) {
-        long nom = f1.nominator * f2.nominator;
-        long denom = f1.denominator * f2.denominator;
-        return new FracStruct(nom, denom);
-    }
-
-    public static FracStruct Divide(FracStruct f1, FracStruct f2) {
-        long nom = f1.nominator * f2.denominator;
-        long denom = f1.denominator * f2.nominator;
-        return new FracStruct(nom, denom);
-    }
-
-    public static FracStruct CalcExpr1(int n) {
-        FracStruct f3 = new(0, 1);
-        for (int i = 1; i <= n; i++)
-            f3 = Plus(f3, new FracStruct(1, i * (i + 1)));
-        return f3;
-    }
-
-    public static FracStruct CalcExpr2(int n) {
-        FracStruct f3 = new(1, 1);
-        for (int i = 2; i <= n; i++)
-            f3 = Multiply(f3, new FracStruct(i * i - 1, i * i));
-        return f3;
+    public static MyFrac operator /(MyFrac f1, MyFrac f2) {
+        long nom = f1.Nominator * f2.Denominator;
+        long denom = f1.Denominator * f2.Nominator;
+        return new MyFrac(nom, denom);
     }
 }	
