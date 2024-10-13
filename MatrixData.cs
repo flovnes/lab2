@@ -18,34 +18,36 @@
             Array.Copy(arr[i], 0, data, i * cols, cols);
     }
     public Matrix(string[] arr) {
-        for (int i = 0; i < arr.Length; i++) {
-            if (arr[i].Length != arr[0].Length)
+        if (arr == null || arr.Length == 0)
+            throw new ArgumentException("invalid input array");
+
+        var rows = arr.Length;
+        var values = arr.Select(row => row.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries)).ToArray();
+
+        for (int i = 1; i < rows; i++)
+            if (values[i].Length != values[0].Length)
                 throw new ArgumentException("non-rectangular matrix");
 
-            int rows = arr.Length;
-            int cols = arr[0].Length;   
+        var cols = values[0].Length;
 
-            data = new double[rows, cols];
-            string[] values = arr[i].Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries);
-            
-            for (int j = 0; j < values.Length; j++) {
-                if (!double.TryParse(values[j], out data[i, j])) {
+        data = new double[rows, cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++)
+                if (!double.TryParse(values[i][j], out data[i, j]))
                     throw new ArgumentException("non-numeric value");
-                }
-            }
         }
     }
     public Matrix(string str) {
-        string[] strs = str.Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
+        string[] strs = str.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         this.data = new Matrix(strs).data;
     }
     
     public Matrix(Matrix m) : this(m.data) {}
     public int Height {
-        get {return data.GetLength(1);}
+        get {return data.GetLength(0);}
     }
     public int Width {
-        get {return data.GetLength(0);}
+        get {return data.GetLength(1);}
     }
     public int getHeight() => Height;
     public int getWidth() => Width;
@@ -78,7 +80,7 @@
         string result = "";
         for (int i = 0; i < Height; i++) {
             for (var j = 0; j < Width; j++)
-                result += $"{this[i, j]}:F3";
+                result += $"{this[i, j],3:F0} ";
             result += "\n";
         }
         return result;

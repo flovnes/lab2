@@ -34,4 +34,40 @@ public partial class Matrix {
 
     public Matrix GetTransponedCopy() => new(GetTransponedArray());
     public void TransponeMe() => data = GetTransponedArray();
+
+    public double CalcDeterminant() {
+        if (Height != Width)
+            throw new ArgumentException("not square matrix");
+
+        return Height switch
+        {
+            1 => data[0, 0],
+            2 => data[0, 0] * data[1, 1] - data[0, 1] * data[1, 0],
+            _ => CalcDeterminantLaplace(),
+        };
+    }
+
+    private double CalcDeterminantLaplace() {
+        double det = 0;
+        for (int j = 0; j < Width; j++) {
+            det += Math.Pow(-1, j) * data[0, j] * GetMinor(0, j).CalcDeterminant();
+        }
+        return det;
+    }
+
+    private Matrix GetMinor(int row, int col) {
+        double[,] minorData = new double[Height - 1, Width - 1];
+        int m = 0, n = 0;
+        for (int i = 0; i < Height; i++) {
+            if (i == row) continue;
+            n = 0;
+            for (int j = 0; j < Width; j++) {
+                if (j == col) continue;
+                minorData[m, n] = data[i, j];
+                n++;
+            }
+            m++;
+        }
+        return new Matrix(minorData);
+    }
 }
