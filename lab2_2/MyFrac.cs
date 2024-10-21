@@ -56,6 +56,7 @@
 
     public double ToDouble() => (double)Nominator / Denominator;
 
+    //
     public static MyFrac operator +(MyFrac f1, MyFrac f2) {
         long nom = f1.Nominator * f2.Denominator + f2.Nominator * f1.Denominator;
         long denom = f1.Denominator * f2.Denominator;

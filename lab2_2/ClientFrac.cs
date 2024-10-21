@@ -1,7 +1,5 @@
-class Program
-{
-    static void Main(string[] args)
-    {
+class Program {
+    static void Main(string[] args) {
         Console.WriteLine("MyFrac Examples:");
 
         MyFrac f1 = new MyFrac(1, 2);
