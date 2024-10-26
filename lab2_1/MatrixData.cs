@@ -1,10 +1,11 @@
-﻿public partial class Matrix {
+﻿using System.Text;
+public partial class Matrix {
     private double[,] data;
     private double det = double.NaN;
     public Matrix(double[,] arr) => data = (double[,]) arr.Clone();
     public Matrix(double[][] arr) {
         if (arr == null || arr.Length == 0 || arr[0] == null)
-            throw new ArgumentException("Invalid input array");
+            throw new ArgumentException("no array");
 
         for (int i = 0; i < arr.Length; i++) {
             if (arr[i].Length != arr[0].Length)
@@ -20,7 +21,7 @@
     }
     public Matrix(string[] arr) {
         if (arr == null || arr.Length == 0)
-            throw new ArgumentException("invalid input array");
+            throw new ArgumentException("no array");
 
         var rows = arr.Length;
         var values = arr.Select(row => row.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries)).ToArray();
@@ -38,11 +39,7 @@
                     throw new ArgumentException("non-numeric value");
         }
     }
-    public Matrix(string str) {
-        string[] strs = str.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        this.data = new Matrix(strs).data;
-    }
-    
+    public Matrix(string str) : this(str.Split('\n', StringSplitOptions.RemoveEmptyEntries)) {}
     public Matrix(Matrix m) : this(m.data) {}
     public int Height {
         get {return data.GetLength(0);}
@@ -69,23 +66,18 @@
         }
     }
     public double getElement(int i, int j) {
-        if (i >= 0 && i < Height)
-        if (j >= 0 && j < Width)
-            return this[i,j];
-        return 0;
+        return this[i,j];
     }
     public void setElement(int i, int j, double value) {
-        if (i >= 0 && i < Height)
-        if (j >= 0 && j < Width)
-            this[i,j] = value;
+        this[i,j] = value;
     }
     public override string ToString() {
-        string result = "";
+        StringBuilder result = new StringBuilder("");
         for (int i = 0; i < Height; i++) {
             for (var j = 0; j < Width; j++)
-                result += $"{this[i, j],3:F0} ";
-            result += "\n";
+                result.Append($"{this[i, j],3:F0} ");
+            result.Append("\n");
         }
-        return result;
+        return result.ToString();
     }
 }
