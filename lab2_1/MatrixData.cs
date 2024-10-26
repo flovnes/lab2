@@ -1,5 +1,6 @@
 ﻿public partial class Matrix {
     private double[,] data;
+    private double det = double.NaN;
     public Matrix(double[,] arr) => data = (double[,]) arr.Clone();
     public Matrix(double[][] arr) {
         if (arr == null || arr.Length == 0 || arr[0] == null)
@@ -61,8 +62,10 @@
         }
         set {
             if ( i >= 0 && i < Height
-            && j >= 0 && j < Width )
+            && j >= 0 && j < Width ) {
                 data[i,j] = value;
+                det = double.NaN;
+            }
         }
     }
     public double getElement(int i, int j) {

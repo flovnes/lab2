@@ -33,41 +33,57 @@ public partial class Matrix {
     }
 
     public Matrix GetTransponedCopy() => new(GetTransponedArray());
-    public void TransponeMe() => data = GetTransponedArray();
+    public void TransponeMe() {
+        data = GetTransponedArray();
+        det = double.NaN;
+    }
 
     public double CalcDeterminant() {
+        if (!double.IsNaN(det))
+            return det;
+
         if (Height != Width)
-            throw new ArgumentException("not square matrix");
+            throw new InvalidOperationException("non-square matrices.");
 
-        return Height switch
-        {
-            1 => data[0, 0],
-            2 => data[0, 0] * data[1, 1] - data[0, 1] * data[1, 0],
-            _ => CalcDeterminantLaplace(),
-        };
-    }
+        double[,] a = new double[Height, Width];
+        Array.Copy(data, a, data.Length);
+        
+        int n = Height;
+        det = 1;
 
-    private double CalcDeterminantLaplace() {
-        double det = 0;
-        for (int j = 0; j < Width; j++) {
-            det += Math.Pow(-1, j) * data[0, j] * GetMinor(0, j).CalcDeterminant();
-        }
-        return det;
-    }
-
-    private Matrix GetMinor(int row, int col) {
-        double[,] minorData = new double[Height - 1, Width - 1];
-        int m = 0, n = 0;
-        for (int i = 0; i < Height; i++) {
-            if (i == row) continue;
-            n = 0;
-            for (int j = 0; j < Width; j++) {
-                if (j == col) continue;
-                minorData[m, n] = data[i, j];
-                n++;
+        for (int k = 0; k < n; k++) {
+            int maxRow = k;
+            double maxVal = Math.Abs(a[k, k]);
+            
+            for (int i = k + 1; i < n; i++) {
+                if (Math.Abs(a[i, k]) > maxVal) {
+                    maxVal = Math.Abs(a[i, k]);
+                    maxRow = i;
+                }
             }
-            m++;
+
+            if (maxRow != k) {
+                for (int j = k; j < n; j++) {
+                    (a[k, j], a[maxRow, j]) = (a[maxRow, j], a[k, j]);
+                }
+                det = -det;
+            }
+
+            if (Math.Abs(a[k, k]) < 1e-10) {
+                det = 0;
+                return det;
+            }
+
+            for (int i = k + 1; i < n; i++) {
+                double factor = a[i, k] / a[k, k];
+                for (int j = k; j < n; j++) {
+                    a[i, j] -= factor * a[k, j];
+                }
+            }
+            
+            det *= a[k, k];
         }
-        return new Matrix(minorData);
+
+        return det;
     }
 }
